@@ -1,5 +1,6 @@
 package cn.labzen.tool.util
 
+import cn.labzen.tool.bean.Pair
 import cn.labzen.tool.exception.StringException
 import cn.labzen.tool.kotlin.throwRuntimeIf
 import com.google.common.base.Ascii
