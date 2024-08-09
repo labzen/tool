@@ -19,6 +19,8 @@ class Constants private constructor() {
     const val PACKAGE_LOGGER = "$PACKAGE_ROOT.logger"
     const val PACKAGE_CELLS = "$PACKAGE_ROOT.cells"
     const val PACKAGE_TOOL = "$PACKAGE_ROOT.tool"
+    const val PACKAGE_NETWORK = "$PACKAGE_ROOT.network"
+    const val PACKAGE_ALGORITHM = "$PACKAGE_ROOT.algorithm"
     const val PACKAGE_SPRING = "$PACKAGE_ROOT.spring"
     const val PACKAGE_PLUGIN = "$PACKAGE_ROOT.plugin"
     const val PACKAGE_JAVAFX = "$PACKAGE_ROOT.javafx"
