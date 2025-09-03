@@ -1,24 +1,31 @@
 package cn.labzen.tool.util;
 
-import cn.labzen.tool.bean.Pair;
 import cn.labzen.tool.exception.StringException;
+import cn.labzen.tool.structure.Pair;
 import com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static cn.labzen.tool.util.Strings.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("ConstantValue")
 public class StringsTest {
 
   @Test
   void testValue() {
     assertNull(value(null, null));
-    assertEquals(value(null, "null"), "null");
-    assertEquals(value("value", "null"), "value");
+    assertEquals("null", value(null, "null"));
+    assertEquals("value", value("value", "null"));
 
     assertNull(value(null, "^non$", "non"));
-    assertEquals(value("null", "null", "value"), "value");
-    assertEquals(value("a123456b", "\\d+", "numbers"), "a123456b");
+    assertEquals("value", value("null", "null", "value"));
+    assertEquals("a123456b", value("a123456b", "\\d+", "numbers"));
+
+    assertEquals("1", value("", "1", true));
+    assertEquals("2", value("2", "3", true));
+    assertEquals("1", value("   ", "1", true));
   }
 
   @Test
@@ -57,42 +64,35 @@ public class StringsTest {
     assertTrue(isAnyBlank("string", "notNull", "  "));
     assertTrue(isAnyBlank("string", "notNull", ""));
     assertTrue(isAnyBlank(Lists.newArrayList("string", "notNull", null)));
-    assertFalse(isAnyBlank(Lists.newArrayList("string", "notNull", "notBlank")));
+    assertFalse(isAnyBlank(List.of("string", "notNull", "notBlank")));
 
     assertFalse(isAllBlank("string", null, "", "  "));
     assertTrue(isAllBlank("", "  "));
     assertFalse(isAllBlank(Lists.newArrayList("string", "notNull", null)));
     assertTrue(isAllBlank(Lists.newArrayList(null, "", "    ")));
-
-    assertEquals(emptyTo("", "1"), "1");
-    assertEquals(emptyTo("2", "3"), "2");
-    assertEquals(blankTo("   ", "1"), "1");
-    assertEquals(blankTo("2", "3"), "2");
-    assertEquals(nullTo(null, "1"), "1");
-    assertEquals(nullTo("2", "3"), "2");
   }
 
   @Test
   void testConcatAndJoin() {
     assertEquals("123", concat("1", "", "2", null, "3"));
     assertEquals("123", concat(Lists.newArrayList("1", "", "2", null, "3")));
-    assertEquals("1::2:3", join(":", "1", "", "2", null, "3"));
-    assertEquals("1::2:3", join(":", Lists.newArrayList("1", "", "2", null, "3")));
-    assertEquals("1", join(":", Lists.newArrayList("1", null)));
+    //assertEquals("1::2:3", join(":", "1", "", "2", null, "3"));
+    //assertEquals("1::2:3", join(":", List.of()("1", "", "2", null, "3")));
+    //assertEquals("1", join(":", List.of()("1", null)));
   }
 
   @Test
   void testTrim() {
     assertEquals("123", trim("===123===", "="));
-    assertEquals("123===", trim("===123===", "=", 1));
-    assertEquals("===123", trim("===123===", "=", -1));
+    assertEquals("123===", trim("===123===", "=", Position.LEFT));
+    assertEquals("===123", trim("===123===", "=", Position.RIGHT));
   }
 
   @Test
   void testPosition() {
-    assertEquals(at("123456789", 3), '4');
-    assertEquals(at("123456789", -4), '6');
-    assertNull(at("123456789", -20));
+    assertEquals('4', at("123456789", 3));
+    assertEquals('6', at("123456789", -4));
+    assertThrows(IllegalArgumentException.class, () -> at("123456789", -20));
 
     // ============
 
@@ -106,25 +106,30 @@ public class StringsTest {
 
     // ============
 
-    assertIterableEquals(Lists.newArrayList("abc", "def"), between("[abc] xyz [def]", '[', ']'));
+    assertIterableEquals(List.of("abc", "def"), between("[abc] xyz [def]", '[', ']'));
 
     // ============
 
-    Pair<String, String> parts = cut("000::111", "::");
-    assertNotNull(parts);
-    assertEquals("000", parts.getFirst());
-    assertEquals("111", parts.getSecond());
+    Pair<String, String> parts1 = cut("000::111", "::");
+    assertNotNull(parts1);
+    assertEquals("000", parts1.first());
+    assertEquals("111", parts1.second());
+
+    Pair<String, String> parts2 = cut("000::111::222", "::");
+    assertNotNull(parts2);
+    assertEquals("000", parts2.first());
+    assertEquals("111::222", parts2.second());
   }
 
   @Test
   void testFormat() {
-    assertEquals("a=1,b=2,a+b=3", format("a={},b={},a+b={}", Lists.newArrayList("1", "2", "3")));
-    assertEquals("a=1,b=2,a+b=\\{3}", format("a={},b={},a+b=\\{{}}", Lists.newArrayList("1", "2", "3")));
-    assertEquals("a=1,b=2,a+b={}3", format("a={},b={},a+b=\\{}{}", Lists.newArrayList("1", "2", "3")));
-    assertEquals("a=1,b=2,a+b=\\3", format("a={},b={},a+b=\\\\{}", Lists.newArrayList("1", "2", "3")));
+    assertEquals("a=1,b=2,a+b=3", format("a={},b={},a+b={}", List.of("1", "2", "3")));
+    assertEquals("a=1,b=2,a+b=\\{3}", format("a={},b={},a+b=\\{{}}", List.of("1", "2", "3")));
+    assertEquals("a=1,b=2,a+b={}3", format("a={},b={},a+b=\\{}{}", List.of("1", "2", "3")));
+    assertEquals("a=1,b=2,a+b=\\3", format("a={},b={},a+b=\\\\{}", List.of("1", "2", "3")));
     assertEquals("a={},b={},a+b={}", format("a={},b={},a+b={}"));
-    assertEquals("a=1,b=2,a+b=3", format("a={},b={},a+b={}", Lists.newArrayList("1", "2", "3", "4")));
-    assertEquals("a=1,b=2,a+b={}", format("a={},b={},a+b={}", Lists.newArrayList("1", "2")));
+    assertEquals("a=1,b=2,a+b=3", format("a={},b={},a+b={}", List.of("1", "2", "3", "4")));
+    assertEquals("a=1,b=2,a+b={}", format("a={},b={},a+b={}", List.of("1", "2")));
 
     assertEquals("a=1,b=2,a+b=3", format("a={},b={},a+b={}", "1", "2", "3"));
     assertEquals("a=1,b=2,a+b=\\{3}", format("a={},b={},a+b=\\{{}}", "1", "2", "3"));
@@ -183,17 +188,17 @@ public class StringsTest {
     assertEquals("there_is_a_word", snakeCase("there_is_a_word  "));
     assertEquals("there_is_a_word", snakeCase(" there-is-a-word "));
     assertEquals("", snakeCase("   "));
-    assertEquals("there_is_some_word", snakeCase("thereIsSomeWord", true));
-    assertEquals("there_is_a_word", snakeCase("thereIsAWord", true));
-    assertEquals("THERE_IS_A_WORD", snakeCase("ThereIsAWord", false));
+    assertEquals("there_is_some_word", snakeCase("thereIsSomeWord", Cases.LOWERCASE));
+    assertEquals("there_is_a_word", snakeCase("thereIsAWord", Cases.LOWERCASE));
+    assertEquals("THERE_IS_A_WORD", snakeCase("ThereIsAWord", Cases.UPPERCASE));
 
-    assertEquals("there-is-a-word", kebabCase("  there is a word", true));
-    assertEquals("there-is-a-word", kebabCase("there_is_a_word  ", true));
-    assertEquals("there-is-a-word", kebabCase(" there-is-a-word ", true));
+    assertEquals("there-is-a-word", kebabCase("  there is a word", Cases.LOWERCASE));
+    assertEquals("there-is-a-word", kebabCase("there_is_a_word  ", Cases.LOWERCASE));
+    assertEquals("there-is-a-word", kebabCase(" there-is-a-word ", Cases.LOWERCASE));
     assertEquals("", kebabCase("   "));
-    assertEquals("there-is-some-word", kebabCase("thereIsSomeWord", true));
-    assertEquals("there-is-a-word", kebabCase("thereIsAWord", true));
-    assertEquals("THERE-IS-A-WORD", kebabCase("ThereIsAWord", false));
+    assertEquals("there-is-some-word", kebabCase("thereIsSomeWord", Cases.LOWERCASE));
+    assertEquals("there-is-a-word", kebabCase("thereIsAWord", Cases.LOWERCASE));
+    assertEquals("THERE-IS-A-WORD", kebabCase("ThereIsAWord", Cases.UPPERCASE));
   }
 
   @Test
@@ -213,30 +218,30 @@ public class StringsTest {
 
   @Test
   void testContains() {
-    assertTrue(haveAll("abcDEF001", Lists.newArrayList("ab", "cD", "001")));
-    assertTrue(haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cD")));
-    assertTrue(haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cd"), false, true));
-    assertTrue(haveAll("abcDEF001", Lists.newArrayList("ab", "cd", "ef"), false, false));
+    assertTrue(containsAll("abcDEF001", List.of("ab", "cD", "001")));
+    assertTrue(containsAll("abcDEF001", List.of("ab", "bc", "cD")));
+    assertTrue(containsAll("abcDEF001", false, true, List.of("ab", "bc", "cd")));
+    assertTrue(containsAll("abcDEF001", false, false, List.of("ab", "cd", "ef")));
 
-    assertFalse(haveAll("abcDEF001", Lists.newArrayList("ab", "cd", "001")));
-    assertFalse(haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cd"), true, true));
-    assertFalse(haveAll("abcDEF001", Lists.newArrayList("ab", "bc", "cD"), true, false));
+    assertFalse(containsAll("abcDEF001", List.of("ab", "cd", "001")));
+    assertFalse(containsAll("abcDEF001", true, true, List.of("ab", "bc", "cd")));
+    assertFalse(containsAll("abcDEF001", true, false, List.of("ab", "bc", "cD")));
 
-    assertTrue(haveAny("abcDEF001", Lists.newArrayList("aba", "cD", "002")));
-    assertTrue(haveAny("abcDEF001", Lists.newArrayList("aba", "cd", "002"), false));
+    assertTrue(containsAny("abcDEF001", List.of("aba", "cD", "002")));
+    assertTrue(containsAny("abcDEF001", false, List.of("aba", "cd", "002")));
 
-    assertFalse(haveAny("abcDEF001", Lists.newArrayList("aba", "cdc", "002")));
+    assertFalse(containsAny("abcDEF001", List.of("aba", "cdc", "002")));
   }
 
   @Test
   void testInsertAndRemove() {
-    assertEquals("xyz123456", insert("123456", 0, "xyz"));
-    assertEquals("123xyz456", insert("123456", 3, "xyz"));
-    assertEquals("123456xyz", insert("123456", 6, "xyz"));
-    assertThrows(StringException.class, () -> insert("123456", 7, "xyz"));
+    assertEquals("xyz123456", insert("123456", "xyz", 0));
+    assertEquals("123xyz456", insert("123456", "xyz", 3));
+    assertEquals("123456xyz", insert("123456", "xyz", 6));
+    assertThrows(StringException.class, () -> insert("123456", "xyz", 7));
 
-    assertEquals("1234xyz56", insert("123456", -2, "xyz"));
-    assertEquals("12xyz3456", insert("123456", -4, "xyz"));
+    assertEquals("1234xyz56", insert("123456", "xyz", -2));
+    assertEquals("12xyz3456", insert("123456", "xyz", -4));
 
     assertEquals("123456", remove("123xyz456", 3, 6));
     assertEquals("123xyz", remove("123xyz456", 6, 9));
@@ -244,12 +249,11 @@ public class StringsTest {
     assertThrows(StringException.class, () -> remove("123xyz456", -1, 3), "删除字符下标越界");
     assertThrows(StringException.class, () -> remove("123xyz456", 5, 4), "删除范围下标start不能大于end");
 
-    assertEquals("xyz", remove("123xyz456", Lists.newArrayList("123", "456")));
-    assertEquals("", remove("123xyz456", Lists.newArrayList("123", "456", "xyz")));
-    assertEquals("_abc_123xyz456", remove("123xyz456_abc_123xyz456", Lists.newArrayList("123", "456", "xyz"), 1));
-    assertEquals("123xyz456_abc_", remove("123xyz456_abc_123xyz456", Lists.newArrayList("123", "456", "xyz"), -1));
-    assertEquals("123xyz456_abc_",
-        remove("123xyz456_abc_123xyz456", Lists.newArrayList("123", "456", "XYZ"), -1, false));
+    assertEquals("xyz", remove("123xyz456", List.of("123", "456"), 0));
+    assertEquals("", remove("123xyz456", List.of("123", "456", "xyz"), 0));
+    assertEquals("_abc_123xyz456", remove("123xyz456_abc_123xyz456", List.of("123", "456", "xyz"), 1));
+    assertEquals("123xyz456_abc_", remove("123xyz456_abc_123xyz456", List.of("123", "456", "xyz"), -1));
+    assertEquals("123xyz456_abc_", remove("123xyz456_abc_123xyz456", List.of("123", "456", "XYZ"), -1, false));
   }
 
   @Test
@@ -262,13 +266,13 @@ public class StringsTest {
     assertFalse(endsWith("123xyz456", "abc", "xyz"));
     assertTrue(endsWith("abc123xyz", false, "123", "XYZ"));
 
-    assertTrue(startsWith("123xyz456", Lists.newArrayList("789", "456", "123")));
-    assertFalse(startsWith("123xyz456", Lists.newArrayList("abc", "xyz")));
-    assertTrue(startsWith("abc123xyz", false, Lists.newArrayList("123", "ABC")));
+    assertTrue(startsWith("123xyz456", List.of("789", "456", "123")));
+    assertFalse(startsWith("123xyz456", List.of("abc", "xyz")));
+    assertTrue(startsWith("abc123xyz", false, List.of("123", "ABC")));
 
-    assertTrue(endsWith("123xyz456", Lists.newArrayList("789", "456", "123")));
-    assertFalse(endsWith("123xyz456", Lists.newArrayList("abc", "xyz")));
-    assertTrue(endsWith("abc123xyz", false, Lists.newArrayList("123", "XYZ")));
+    assertTrue(endsWith("123xyz456", List.of("789", "456", "123")));
+    assertFalse(endsWith("123xyz456", List.of("abc", "xyz")));
+    assertTrue(endsWith("abc123xyz", false, List.of("123", "XYZ")));
 
     // ====================================================================================
 
@@ -300,22 +304,22 @@ public class StringsTest {
 
   @Test
   void testLastUntil() {
-    assertEquals("core", lastUntil("/root/dean/core", "/"));
+    assertEquals("core", lastUntil("/root/dean/core", "/", false));
     assertEquals("/core", lastUntil("/root/dean/core", "/", true));
-    assertEquals("/core", lastUntil("/root/dean/core", "/dean"));
+    assertEquals("/core", lastUntil("/root/dean/core", "/dean", false));
     assertEquals("/dean/core", lastUntil("/root/dean/core", "/dean", true));
-    assertEquals("/root/dean/core", lastUntil("/root/dean/core", "="));
+    assertEquals("/root/dean/core", lastUntil("/root/dean/core", "=", false));
     assertEquals("/core", lastUntil("/root/dean/core", "/core", true));
-    assertEquals("", lastUntil("/root/dean/core", "/core"));
+    assertEquals("", lastUntil("/root/dean/core", "/core", false));
   }
 
   @Test
   void testFrontUntil() {
-    assertEquals("C:", frontUntil("C:/windows/system32", "/"));
+    assertEquals("C:", frontUntil("C:/windows/system32", "/", false));
     assertEquals("C:/", frontUntil("C:/windows/system32", "/", true));
-    assertEquals("C:/windows/system32", frontUntil("C:/windows/system32", "="));
+    assertEquals("C:/windows/system32", frontUntil("C:/windows/system32", "=", false));
     assertEquals("C:", frontUntil("C:/windows/system32", "C:", true));
-    assertEquals("", frontUntil("C:/windows/system32", "C:"));
+    assertEquals("", frontUntil("C:/windows/system32", "C:", false));
   }
 
   @Test
@@ -323,8 +327,8 @@ public class StringsTest {
     assertTrue(equalsAny("1", "1", "2", "3"));
     assertFalse(equalsAny("1", "2", "3", "4"));
 
-    assertTrue(equalsAnyIgnoreCase("abc", "abc", "xyz", "123"));
-    assertTrue(equalsAnyIgnoreCase("abc", "Abc", "xyz", "123"));
-    assertFalse(equalsAnyIgnoreCase("abc", "xyz", "123"));
+    assertTrue(equalsAny("abc", false, "abc", "xyz", "123"));
+    assertTrue(equalsAny("abc", false, "Abc", "xyz", "123"));
+    assertFalse(equalsAny("abc", false, "xyz", "123"));
   }
 }

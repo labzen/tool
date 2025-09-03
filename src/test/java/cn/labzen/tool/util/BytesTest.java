@@ -81,22 +81,7 @@ public class BytesTest {
     Assertions.assertEquals(bean.age, rb.age);
   }
 
-  static class Bean implements Serializable {
+  record Bean(String name, int age) implements Serializable {
 
-    private final String name;
-    private final int age;
-
-    public Bean(String name, int age) {
-      this.name = name;
-      this.age = age;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public int getAge() {
-      return age;
-    }
   }
 }

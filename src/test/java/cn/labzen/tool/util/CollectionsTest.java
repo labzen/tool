@@ -56,23 +56,23 @@ class CollectionsTest {
     ArrayList<String> strings = Lists.newArrayList("a", "b", "c");
     String word = "x";
 
-    strings = insureContains(strings, word);
+    insureListContains(strings, word);
     Assertions.assertEquals(4, strings.size());
     assertTrue(strings.contains(word));
 
-    strings = insureContains(strings, word);
+    insureListContains(strings, word);
     Assertions.assertEquals(4, strings.size());
   }
 
   @Test
   void testOnValueAtLeast() {
-    ArrayList<String> strings = Lists.newArrayList();
+    List<String> strings = Lists.newArrayList();
     String word = "x";
 
-    strings = onValueAtLeast(strings, "x");
+    strings = oneElementListWhenEmpty(strings, "x");
     Assertions.assertEquals(1, strings.size());
 
-    strings = onValueAtLeast(strings, "x");
+    strings = oneElementListWhenEmpty(strings, "x");
     Assertions.assertEquals(1, strings.size());
   }
 }

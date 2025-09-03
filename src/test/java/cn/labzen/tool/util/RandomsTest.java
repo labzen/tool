@@ -1,8 +1,8 @@
 package cn.labzen.tool.util;
 
-import cn.labzen.tool.bean.Pair;
 import cn.labzen.tool.definition.Constants;
-import cn.labzen.tool.definition.Numbers;
+import cn.labzen.tool.definition.Number;
+import cn.labzen.tool.structure.Pair;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.hamcrest.MatcherAssert;
@@ -26,8 +26,8 @@ public class RandomsTest {
   @Test
   void testNumber() {
     for (int i = 0; i < 500; i++) {
-      assertEquals(0, intNumber(2, 1000, Numbers.EVEN_NUMBER) % 2);
-      assertEquals(1, longNumber(1, 1000, Numbers.ODD_NUMBER) % 2);
+      assertEquals(0, intNumber(2, 1000, Number.EVEN_NUMBER) % 2);
+      assertEquals(1, longNumber(1, 1000, Number.ODD_NUMBER) % 2);
     }
   }
 
@@ -51,9 +51,9 @@ public class RandomsTest {
     map.put("c", 3);
     Pair<String, Integer> pair = element(map);
     assertNotNull(pair);
-    assertTrue(map.containsKey(pair.getFirst()));
-    assertTrue(map.containsValue(pair.getSecond()));
-    assertEquals(pair.getSecond(), map.get(pair.getFirst()));
+    assertTrue(map.containsKey(pair.first()));
+    assertTrue(map.containsValue(pair.second()));
+    assertEquals(pair.second(), map.get(pair.first()));
   }
 
   @Test

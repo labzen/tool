@@ -7,8 +7,7 @@ public class SystemsTest {
 
   @Test
   void testInfo() {
-    Assertions.assertNotNull(Systems.getOsName());
-    Assertions.assertEquals(64, Systems.getOsArch());
+    Assertions.assertNotNull(Systems.getOS());
+    Assertions.assertEquals(64, Systems.getOSArch());
   }
-
 }
