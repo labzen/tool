@@ -66,17 +66,27 @@ public final class LibraryLoader {
       throw new LibraryLoadException("憋反复加载，有意思？");
     }
 
-    LOGGER.atInfo().scene(LOG_SCENE).status(Status.STARTING).log("开始加载动态链接库文件..");
+    LOGGER.atInfo().scene(LOG_SCENE).status(Status.STARTING).log("开始加载动态链接库文件...");
 
-    List<File> pending = libTargets;
+    // 复制副本
+    List<File> pending = new ArrayList<>(libTargets);
     int times = 0;
     while (!pending.isEmpty() && times < MAX_RETRY_TIMES) {
-      for (File dir : pending) {
+      // 创建遍历副本
+      List<File> currentBatch = new ArrayList<>(pending);
+      // 清空待处理列表
+      pending.clear();
+
+      for (File dir : currentBatch) {
         internalLoad(dir);
-        pending.remove(dir);
-        pending.addAll(report.failureFiles());
-        times++;
       }
+
+      // 收集本次失败的，重新加入待处理队列
+      List<File> failures = report.failureFiles();
+      if (!failures.isEmpty()) {
+        pending.addAll(failures);
+      }
+      times++;
     }
 
     executed = true;
@@ -90,10 +100,10 @@ public final class LibraryLoader {
     List<File> foundFiles = new ArrayList<>();
     findFiles(target, foundFiles);
 
-    foundFiles.forEach(this::loadin);
+    foundFiles.forEach(this::loadIn);
   }
 
-  private void loadin(File file) {
+  private void loadIn(File file) {
     try {
       System.load(file.getAbsolutePath());
       report.loaded(file);

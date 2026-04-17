@@ -5,7 +5,7 @@ import static cn.labzen.tool.definition.FileType.*;
 /**
  * 文件扩展名
  */
-public enum fileExtension {
+public enum FileExtension {
 
   NOT_A_FILE(OTHER, ""),
   TEXT_TXT(TEXT, ".txt"),
@@ -93,7 +93,7 @@ public enum fileExtension {
   private final FileType type;
   private final String extension;
 
-  fileExtension(FileType type, String extension) {
+  FileExtension(FileType type, String extension) {
     this.type = type;
     this.extension = extension;
   }

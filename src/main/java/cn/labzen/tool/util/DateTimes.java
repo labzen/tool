@@ -1,5 +1,8 @@
 package cn.labzen.tool.util;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -7,6 +10,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static cn.labzen.tool.definition.Constants.PATTERN_OF_DATE_TIME;
@@ -17,6 +21,16 @@ public final class DateTimes {
   private static final DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(PATTERN_OF_DATE_TIME);
   private static final SimpleDateFormat DEFAULT_SIMPLE_DATE_FORMAT = new SimpleDateFormat(PATTERN_OF_DATE_TIME);
   private static final char[] SYMBOLS = new char[]{'y', 'M', 'd', 'w', 'H', 'm', 's', 'c', '('};
+  private static final Cache<String, DateTimeFormatter> DATETIME_FORMATTER_CACHE = Caffeine.newBuilder()
+                                                                                           .maximumSize(50)
+                                                                                           .expireAfterAccess(1,
+                                                                                               TimeUnit.HOURS)
+                                                                                           .build();
+  private static final Cache<String, SimpleDateFormat> SIMPLE_DATE_FORMAT_CACHE = Caffeine.newBuilder()
+                                                                                          .maximumSize(10)
+                                                                                          .expireAfterAccess(1,
+                                                                                              TimeUnit.HOURS)
+                                                                                          .build();
 
   private DateTimes() {
   }
@@ -67,7 +81,8 @@ public final class DateTimes {
    * 当前时间字符串
    */
   public static String formattedNow(String pattern) {
-    return LocalDateTime.now().format(DateTimeFormatter.ofPattern(pattern));
+    DateTimeFormatter formatter = DATETIME_FORMATTER_CACHE.get(pattern, DateTimeFormatter::ofPattern);
+    return LocalDateTime.now().format(formatter);
   }
 
   /**
@@ -83,7 +98,8 @@ public final class DateTimes {
    */
   public static String format(LocalDateTime localDateTime, String pattern) {
     assert localDateTime != null && pattern != null;
-    return localDateTime.format(DateTimeFormatter.ofPattern(pattern));
+    DateTimeFormatter formatter = DATETIME_FORMATTER_CACHE.get(pattern, DateTimeFormatter::ofPattern);
+    return localDateTime.format(formatter);
   }
 
   /**
@@ -99,7 +115,8 @@ public final class DateTimes {
    */
   public static String format(Date date, String pattern) {
     assert date != null && pattern != null;
-    return new SimpleDateFormat(pattern).format(date);
+    SimpleDateFormat formatter = SIMPLE_DATE_FORMAT_CACHE.get(pattern, SimpleDateFormat::new);
+    return formatter.format(date);
   }
 
   // ===================================================================================================================

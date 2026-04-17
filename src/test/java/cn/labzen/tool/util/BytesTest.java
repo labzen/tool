@@ -67,18 +67,18 @@ public class BytesTest {
     params.put("b", 2);
 
     byte[] bytes = objectToBytes(params);
-    Object restored = bytesToObject(bytes);
+    @SuppressWarnings("unchecked")
+    Map<String, Integer> restored = (Map<String, Integer>) bytesToObject(bytes, Map.class);
 
     Assertions.assertEquals(params, restored);
 
     Bean bean = new Bean("Dean", 18);
     byte[] beanBytes = objectToBytes(bean);
-    Object restoredBean = bytesToObject(beanBytes);
+    Bean restoredBean = bytesToObject(beanBytes, Bean.class);
 
     Assertions.assertNotNull(restoredBean);
     Assertions.assertEquals(Bean.class, restoredBean.getClass());
-    Bean rb = (Bean) restoredBean;
-    Assertions.assertEquals(bean.age, rb.age);
+    Assertions.assertEquals(bean.age, restoredBean.age);
   }
 
   record Bean(String name, int age) implements Serializable {

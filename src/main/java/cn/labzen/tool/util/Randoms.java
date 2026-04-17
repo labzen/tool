@@ -194,7 +194,7 @@ public final class Randoms {
     }
 
     Duration duration = Duration.between(baseline.first(), baseline.second());
-    long randomSeconds = random.nextLong(duration.getSeconds());
+    long randomSeconds = random.nextLong(1, duration.getSeconds());
     return baseline.first().plusSeconds(randomSeconds);
   }
 }

@@ -52,12 +52,14 @@ public final class Caller {
    */
   private static int offset(StackTraceElement[] stackTrace) {
     int start = OFFSET_START_AT_STACK_TRACE;
-    while (true) {
-      if (stackTrace[start++].getClassName().equals(CALLER_NAME)) {
-        break;
+    int size = stackTrace.length;
+    while (start < size) {
+      if (stackTrace[start].getClassName().equals(CALLER_NAME)) {
+        return start;
       }
+      start++;
     }
-    return start;
+    return start - 1;
   }
 
   /**

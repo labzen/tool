@@ -36,7 +36,7 @@ public final class Strings {
    * 如果source为null，返回defaultValue。否则返回String.valueOf(source)
    */
   public static String value(Object source, String defaultValue) {
-    return source == null ? defaultValue : String.valueOf(source);
+    return source == null ? defaultValue : value(String.valueOf(source), defaultValue);
   }
 
   /**
@@ -757,6 +757,13 @@ public final class Strings {
   }
 
   /**
+   * 判断是否是驼峰式（首字母大写）
+   */
+  public static boolean isStudlyCase(String source) {
+    return source.matches("^[A-Z][a-zA-Z0-9]*$");
+  }
+
+  /**
    * 转换成驼峰式，首字母小写
    * <code>
    * <pre>
@@ -773,6 +780,13 @@ public final class Strings {
    */
   public static String camelCase(String source) {
     return toLowerCase(studlyCase(source), 0, 1);
+  }
+
+  /**
+   * 判断是否是驼峰式（首字母小写）
+   */
+  public static boolean isCamelCase(String source) {
+    return source.matches("^[a-z][a-zA-Z0-9]*$");
   }
 
   /**
@@ -816,6 +830,13 @@ public final class Strings {
   }
 
   /**
+   * 判断是否是Snake Case
+   */
+  public static boolean isSnakeCase(String source) {
+    return source.matches("(?i)^[a-z0-9]+(?:_[a-z0-9]+)*$");
+  }
+
+  /**
    * 转换成Kebab Case，以短横线间隔
    * <code>
    * <pre>
@@ -853,6 +874,13 @@ public final class Strings {
    */
   public static String kebabCase(String source, Cases cases) {
     return String.join("-", slicingStrings(source, cases));
+  }
+
+  /**
+   * 判断是否是Kebab Case
+   */
+  public static boolean isKebabCase(String source) {
+    return source.matches("(?i)^[a-z0-9]+(?:-[a-z0-9]+)*$");
   }
 
   // ===================================================================================================================
@@ -1011,7 +1039,7 @@ public final class Strings {
     String aim = caseSensitive ? source : source.toLowerCase();
 
     for (String s : fragments) {
-      int foundIndex = caseSensitive? aim.indexOf(s) : aim.indexOf(s.toLowerCase());
+      int foundIndex = caseSensitive ? aim.indexOf(s) : aim.indexOf(s.toLowerCase());
       //boolean found = caseSensitive ? aim.contains(s) : aim.contains(s.toLowerCase());
       if (foundIndex < 0) {
         return false;
@@ -1383,6 +1411,17 @@ public final class Strings {
   }
 
   // ===================================================================================================================
+
+  /**
+   * 字符串是否以大写字母开头
+   */
+  public static boolean isStartsWithCapital(String source) {
+    if (isEmpty(source)) {
+      return false;
+    }
+    char c = source.charAt(0);
+    return c >= 'A' && c <= 'Z';
+  }
 
   /**
    * 字符串是否以指定的任意一个子字符串开头，区分大小写

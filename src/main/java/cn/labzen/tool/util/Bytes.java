@@ -1,5 +1,6 @@
 package cn.labzen.tool.util;
 
+import javax.annotation.Nonnull;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -168,12 +169,25 @@ public final class Bytes {
   /**
    * 字节数组还原任意对象（Serializable)
    */
-  public static Object bytesToObject(byte[] bytes) {
+  @SuppressWarnings("unchecked")
+  public static <T> T bytesToObject(byte[] bytes, @Nonnull Class<T> expectedType) {
     try (ByteArrayInputStream byteIS = new ByteArrayInputStream(bytes);
          ObjectInputStream objectIS = new ObjectInputStream(byteIS)) {
-      return objectIS.readObject();
+
+      Object obj = objectIS.readObject();
+
+      // 类型验证
+      if (!expectedType.isInstance(obj)) {
+        throw new ClassCastException("Deserialized object type " +
+                                     obj.getClass().getName() +
+                                     " does not match expected type " +
+                                     expectedType.getName());
+      }
+
+      return (T) obj;
     } catch (IOException | ClassNotFoundException e) {
       throw new RuntimeException("Object deserialization failed", e);
     }
   }
+
 }
