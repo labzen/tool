@@ -19,7 +19,6 @@ public final class DateTimes {
 
   private static final ZoneId SYSTEM_TIME_ZONE = ZoneId.systemDefault();
   private static final DateTimeFormatter DEFAULT_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(PATTERN_OF_DATE_TIME);
-  private static final SimpleDateFormat DEFAULT_SIMPLE_DATE_FORMAT = new SimpleDateFormat(PATTERN_OF_DATE_TIME);
   private static final char[] SYMBOLS = new char[]{'y', 'M', 'd', 'w', 'H', 'm', 's', 'c', '('};
   private static final Cache<String, DateTimeFormatter> DATETIME_FORMATTER_CACHE = Caffeine.newBuilder()
                                                                                            .maximumSize(50)
@@ -107,7 +106,8 @@ public final class DateTimes {
    */
   public static String format(Date date) {
     assert date != null;
-    return DEFAULT_SIMPLE_DATE_FORMAT.format(date);
+    SimpleDateFormat formatter = SIMPLE_DATE_FORMAT_CACHE.get(PATTERN_OF_DATE_TIME, SimpleDateFormat::new);
+    return formatter.format(date);
   }
 
   /**

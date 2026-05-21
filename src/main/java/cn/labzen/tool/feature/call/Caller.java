@@ -71,7 +71,7 @@ public final class Caller {
       return false;
     }
 
-    return callDetail.getClass().equals(suspectClass);
+    return callDetail.type().equals(suspectClass);
   }
 
   /**
@@ -83,7 +83,7 @@ public final class Caller {
       return false;
     }
 
-    return callDetail.getClass().equals(suspectClass) && callDetail.methodName().equals(suspectMethodName);
+    return callDetail.type().equals(suspectClass) && callDetail.methodName().equals(suspectMethodName);
   }
 
   /**

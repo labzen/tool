@@ -11,6 +11,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -134,7 +135,7 @@ public final class LibraryLoader {
    * @param paths 存放动态链接库文件地址或存放的目录地址集合
    */
   public static LibraryLoader from(List<String> paths) {
-    List<File> targets = paths.stream().map(LibraryLoader::turn2File).toList();
+    List<File> targets = paths.stream().map(LibraryLoader::turn2File).filter(Objects::nonNull).toList();
     return new LibraryLoader(targets);
   }
 

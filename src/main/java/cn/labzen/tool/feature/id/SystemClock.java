@@ -20,6 +20,7 @@ public final class SystemClock {
 
   private static final long PERIOD_MS = 1L;
   private static final AtomicLong NOW = new AtomicLong(System.currentTimeMillis());
+  private static final ScheduledThreadPoolExecutor CLOCK_EXECUTOR;
 
   static {
     ThreadFactory tf = r -> {
@@ -28,10 +29,13 @@ public final class SystemClock {
       t.setPriority(Thread.NORM_PRIORITY + 1);
       return t;
     };
-    try (ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1, tf)) {
-      exec.setRemoveOnCancelPolicy(true);
-      exec.scheduleAtFixedRate(() -> NOW.set(System.currentTimeMillis()), PERIOD_MS, PERIOD_MS, TimeUnit.MILLISECONDS);
-    }
+    
+    CLOCK_EXECUTOR = new ScheduledThreadPoolExecutor(1, tf);
+    CLOCK_EXECUTOR.setRemoveOnCancelPolicy(true);
+    CLOCK_EXECUTOR.scheduleAtFixedRate(() -> NOW.set(System.currentTimeMillis()),
+        PERIOD_MS,
+        PERIOD_MS,
+        TimeUnit.MILLISECONDS);
   }
 
   private SystemClock() {

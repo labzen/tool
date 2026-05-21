@@ -236,7 +236,7 @@ public final class Strings {
    * @param position  去掉的位置，左边或右边，或两边
    */
   public static String trim(String source, String redundant, Position position) {
-    if (isEmpty(redundant)) {
+    if (isEmpty(source) || isEmpty(redundant)) {
       return source;
     }
 
@@ -456,8 +456,7 @@ public final class Strings {
         escaped = c == ESCAPE_CHAR;
       }
       if (escaped) {
-        char c = at(pattern, current - 2);
-        if (c == ESCAPE_CHAR) {
+        if (current >= 2 && at(pattern, current - 2) == ESCAPE_CHAR) {
           buf.append(pattern, start, current - 1);
           buf.append(formatArguments(arg));
           start = current + 2;
@@ -1604,10 +1603,14 @@ public final class Strings {
    * @param filler 填充物
    */
   public static String brief(String source, int length, String filler) {
+    if (isEmpty(source) || source.length() <= length) {
+      return source;
+    }
     if (isEmpty(filler)) {
       return source.substring(0, length);
     } else {
-      return source.substring(0, length - filler.length()) + filler;
+      int cutLength = Math.max(0, length - filler.length());
+      return source.substring(0, cutLength) + filler;
     }
   }
 
