@@ -56,11 +56,11 @@ class CollectionsTest {
     ArrayList<String> strings = Lists.newArrayList("a", "b", "c");
     String word = "x";
 
-    insureListContains(strings, word);
+    insureContains(strings, word);
     Assertions.assertEquals(4, strings.size());
     assertTrue(strings.contains(word));
 
-    insureListContains(strings, word);
+    insureContains(strings, word);
     Assertions.assertEquals(4, strings.size());
   }
 
@@ -69,10 +69,10 @@ class CollectionsTest {
     List<String> strings = Lists.newArrayList();
     String word = "x";
 
-    strings = oneElementListWhenEmpty(strings, "x");
+    strings = addIfEmpty(strings, "x");
     Assertions.assertEquals(1, strings.size());
 
-    strings = oneElementListWhenEmpty(strings, "x");
+    strings = addIfEmpty(strings, "x");
     Assertions.assertEquals(1, strings.size());
   }
 }

@@ -173,6 +173,41 @@ public final class Objects {
   }
 
   /**
+   * 获取值，如果值为 {@code null} 则返回默认值。与现有 {@link #firstNonNull} 不同，
+   * 此方法保证返回类型为泛型 {@code T}，无需调用方强制转型。
+   *
+   * <pre>{@code
+   * String result = Objects.getOrDefault(input, "default");
+   * }</pre>
+   *
+   * @param value        待检查的值
+   * @param defaultValue 当 value 为 null 时返回的默认值
+   * @param <T>          值类型
+   * @return value 或 defaultValue
+   */
+  public static <T> T getOrDefault(T value, T defaultValue) {
+    return value != null ? value : defaultValue;
+  }
+
+  /**
+   * 获取值，如果值为 {@code null} 则通过 {@link Supplier} 惰性求值获取默认值。
+   * 适用于默认值构造开销较大的场景。
+   *
+   * <pre>{@code
+   * // 仅当 config 为 null 时才执行 buildDefaultConfig()
+   * Config result = Objects.getOrDefault(config, Config::buildDefaultConfig);
+   * }</pre>
+   *
+   * @param value                 待检查的值
+   * @param defaultValueSupplier  当 value 为 null 时提供默认值的 Supplier，不可为 null
+   * @param <T>                   值类型
+   * @return value 或 defaultValueSupplier 生成的值
+   */
+  public static <T> T getOrDefault(T value, Supplier<T> defaultValueSupplier) {
+    return value != null ? value : defaultValueSupplier.get();
+  }
+
+  /**
    * 内部 ASCII 数字解析工具
    */
   static final class AsciiDigits {

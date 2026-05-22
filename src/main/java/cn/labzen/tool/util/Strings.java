@@ -1713,6 +1713,108 @@ public final class Strings {
     }
   }
 
+  // ===================================================================================================================
+
+  /**
+   * 对字符串进行 URL 编码（{@code application/x-www-form-urlencoded}），使用 UTF-8 字符集。
+   * 将空格转换为 {@code %20}。
+   *
+   * <pre>{@code
+   * Strings.urlEncode("hello world")   // "hello+world"
+   * Strings.urlEncode("a=1&b=2")       // "a%3D1%26b%3D2"
+   * }</pre>
+   *
+   * @param source 原始字符串，为 null 或空时原样返回
+   * @return URL 编码后的字符串
+   */
+  public static String urlEncode(String source) {
+    if (isEmpty(source)) {
+      return source;
+    }
+    try {
+      return java.net.URLEncoder.encode(source, java.nio.charset.StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      return source;
+    }
+  }
+
+  /**
+   * 对字符串进行 URL 解码，使用 UTF-8 字符集。
+   *
+   * <pre>{@code
+   * Strings.urlDecode("hello+world")      // "hello world"
+   * Strings.urlDecode("a%3D1%26b%3D2")    // "a=1&b=2"
+   * }</pre>
+   *
+   * @param source URL 编码字符串，为 null 或空时原样返回
+   * @return URL 解码后的字符串
+   */
+  public static String urlDecode(String source) {
+    if (isEmpty(source)) {
+      return source;
+    }
+    try {
+      return java.net.URLDecoder.decode(source, java.nio.charset.StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      return source;
+    }
+  }
+
+  /**
+   * 对字符串进行 HTML 实体编码，将特殊字符转义为对应的 HTML 实体，用于防范 XSS 攻击。
+   * 转义规则：{@code & -> &amp;}  {@code < -> &lt;}  {@code > -> &gt;}  {@code " -> &quot;}  {@code ' -> &#39;}
+   *
+   * <pre>{@code
+   * Strings.htmlEncode("<script>alert('xss')</script>")
+   * // "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;"
+   * }</pre>
+   *
+   * @param source 原始字符串，为 null 或空时原样返回
+   * @return HTML 实体编码后的字符串
+   */
+  public static String htmlEncode(String source) {
+    if (isEmpty(source)) {
+      return source;
+    }
+    StringBuilder sb = new StringBuilder(source.length() + 16);
+    for (int i = 0; i < source.length(); i++) {
+      char c = source.charAt(i);
+      switch (c) {
+        case '&'  -> sb.append("&amp;");
+        case '<'  -> sb.append("&lt;");
+        case '>'  -> sb.append("&gt;");
+        case '"'  -> sb.append("&quot;");
+        case '\'' -> sb.append("&#39;");
+        default   -> sb.append(c);
+      }
+    }
+    return sb.toString();
+  }
+
+  /**
+   * 对 HTML 实体编码的字符串进行解码，将 HTML 实体还原为原始字符。
+   * 解码规则：{@code &amp; -> &}  {@code &lt; -> <}  {@code &gt; -> >}  {@code &quot; -> "}  {@code &#39; -> '}
+   *
+   * <pre>{@code
+   * Strings.htmlDecode("&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;")
+   * // "<script>alert('xss')</script>"
+   * }</pre>
+   *
+   * @param source HTML 实体编码字符串，为 null 或空时原样返回
+   * @return 解码后的原始字符串
+   */
+  public static String htmlDecode(String source) {
+    if (isEmpty(source)) {
+      return source;
+    }
+    // 先解码 &amp; 避免与其他实体冲突
+    return source.replace("&amp;", "&")
+                 .replace("&lt;", "<")
+                 .replace("&gt;", ">")
+                 .replace("&quot;", "\"")
+                 .replace("&#39;", "'");
+  }
+
   public enum Position {
     LEFT, RIGHT, BOTH
   }

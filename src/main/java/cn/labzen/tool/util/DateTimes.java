@@ -122,6 +122,34 @@ public final class DateTimes {
   // ===================================================================================================================
 
   /**
+   * 判断时间是否在指定时间区间 [start, end] 内（闭区间，包含边界）。
+   * 任意参数为 {@code null} 时返回 {@code false}。
+   *
+   * <pre>{@code
+   * LocalDateTime target = LocalDateTime.of(2026, 5, 15, 12, 0);
+   * LocalDateTime start  = LocalDateTime.of(2026, 5, 1, 0, 0);
+   * LocalDateTime end    = LocalDateTime.of(2026, 5, 31, 23, 59);
+   *
+   * DateTimes.isBetween(target, start, end)   // true
+   * DateTimes.isBetween(target, end, start)   // false（start > end 时永远为 false）
+   * }</pre>
+   *
+   * @param target 需要判断的时间
+   * @param start  起始时间（含）
+   * @param end    结束时间（含）
+   * @return target 在 [start, end] 范围内返回 {@code true}，否则返回 {@code false}
+   */
+  public static boolean isBetween(LocalDateTime target, LocalDateTime start, LocalDateTime end) {
+    if (target == null || start == null || end == null) {
+      return false;
+    }
+    // isBefore / isAfter 使用 compareTo，保证精确比较
+    return !target.isBefore(start) && !target.isAfter(end);
+  }
+
+  // ===================================================================================================================
+
+  /**
    * 计算参数时间与当前时间的相差时长
    * <p>
    * pattern参数有效字符，每个符号只需一个字符表示：
